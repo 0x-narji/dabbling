@@ -17,10 +17,11 @@ use warnings qw(all);
 ################################################################################
 
 use Digest::MD5 qw(md5_hex);
+use Digest::SHA qw(sha256_hex);
 
 my $chunk_size = 1024;
-my $iterations = 1024;        # this '10240 will results in about [.028, .054] ...
-                              # ...  frequency boundaries.
+my $iterations = 1024;         # this '1024' will results in about [.0028, .0054] ...
+                                      # ...  frequency boundaries.
 
 my $data_length = $chunk_size * $iterations;
 my $random_data = qx!cat /dev/random | head -c $data_length!;
@@ -29,13 +30,14 @@ my %bytes_stats = ();         # key is double hex byte
 my $no_of_bytes = 0;          # bytes count
 
 foreach my $iteration (0 .. $iterations - 1) {
-  #my $md5 = qx!cat /dev/random | head -c $chunk_size | md5!;
-  #chomp($md5);
+  #my $digest = qx!cat /dev/random | head -c $chunk_size | md5!;
+  #chomp($digest);
   my $chunk = substr($random_data, $iteration * $chunk_size, $chunk_size);
-  my $md5 = md5_hex($chunk);
-  $md5 =~ s/(\w\w)/$1 /g;     # add a space between bytes
-  chomp($md5);                # remove trailing space ' '
-  my @md5_hex_bytes = split ' ', $md5;
+  my $digest = md5_hex($chunk);
+  #my $digest = sha256_hex($chunk);     # will fall betweeb [.0030, .0050]
+  $digest =~ s/(\w\w)/$1 /g;     # add a space between bytes
+  chomp($digest);                # remove trailing space ' '
+  my @md5_hex_bytes = split ' ', $digest;
   foreach my $byte (@md5_hex_bytes) {
     $bytes_stats{$byte}++;
     $no_of_bytes++;           # bytes count update
