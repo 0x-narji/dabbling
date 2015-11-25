@@ -26,7 +26,7 @@ my $iterations = 1024;         # this '1024' will results in about [.0028, .0054
 my $data_length = $chunk_size * $iterations;
 my $random_data = qx!cat /dev/random | head -c $data_length!;
 
-my %bytes_stats = ();         # key is double hex byte
+my %bytes_stats = ();          # key is double hex byte
 my $no_of_bytes = 0;          # bytes count
 
 foreach my $iteration (0 .. $iterations - 1) {
@@ -34,13 +34,13 @@ foreach my $iteration (0 .. $iterations - 1) {
   #chomp($digest);
   my $chunk = substr($random_data, $iteration * $chunk_size, $chunk_size);
   my $digest = md5_hex($chunk);
-  #my $digest = sha256_hex($chunk);     # will fall betweeb [.0030, .0050]
-  $digest =~ s/(\w\w)/$1 /g;     # add a space between bytes
-  chomp($digest);                # remove trailing space ' '
-  my @md5_hex_bytes = split ' ', $digest;
-  foreach my $byte (@md5_hex_bytes) {
+  #my $digest = sha256_hex($chunk);     # will fall between [.0030, .0050]
+  $digest =~ s/(\w\w)/$1 /g;                    # add a space between bytes
+  chomp($digest);                               # remove trailing space ' '
+  my @hex_bytes = split ' ', $digest;
+  foreach my $byte (@hex_bytes) {
     $bytes_stats{$byte}++;
-    $no_of_bytes++;           # bytes count update
+    $no_of_bytes++;                             # bytes count update
   }
 }
 
