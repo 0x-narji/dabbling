@@ -1,4 +1,15 @@
 #!usr/bin/ruby
+####################################################################################
+#
+# This code was made for an Amazon AWS services interviews.
+#
+# It just checks which "combination" out of a given set of integers
+# sums up to a target numbers.
+#
+# I though a bit about it then decided to pre-optmized w/o tail recursion
+# ... and reuse, like engineers usually do, a binary sequence.
+#
+####################################################################################
 
 require 'test/unit'
 
