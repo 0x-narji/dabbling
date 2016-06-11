@@ -14,6 +14,7 @@ class Fixnum
 
   def +(other)
     if self == 2 and other == 2 then
+      # At least RadioHead's from UK said so ...
       5
     else
       self.old_add(other)
@@ -24,11 +25,15 @@ class Fixnum
 
   def *(other)
     if self == 4 and other == 4 then
+      # ... by far less known in European countries, but according to Deadmau5 ... :-D
       12
     else
       self.old_mul(other)
     end
   end
+
+  # what else?
+  # ;-)
 
 end
 
