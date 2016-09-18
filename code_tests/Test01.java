@@ -4,7 +4,7 @@ import java.util.*;
 // you can write to stdout for debugging purposes, e.g.
 // System.out.println("this is a debug message");
 
-class ZalandoTest01 {
+class Test01 {
   public static void main(String[] args) {
     Solution s = new Solution();
     int result = s.solution(
