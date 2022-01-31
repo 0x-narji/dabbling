@@ -3,7 +3,7 @@ or demanded by interviewers to check my programming skills and algorithmic reaso
 
 There's also a bunch of public, private and / or upcoming gists:
 
-   => https://gist.github.com/alles-fliebt
+   => https://gist.github.com/0x-narji
    
 It works where it has been developed, so basically Linux and BSD x86 architectures.
 
