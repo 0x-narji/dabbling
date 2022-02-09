@@ -1,10 +1,8 @@
-Actually the code here is just a few scripts coded to accomplish some common tasks / procedures, produce proof-of-concepts
-or demanded by interviewers to check my programming skills and algorithmic reasoning.
+The code, here works _only_ where it has been developed, so basically "**macOS ia-64**" architectures.
 
-There's also a bunch of public, private and / or upcoming gists:
+* Jan, 2022 - I merged my old repo (this one, i.e. alles-fliebt, w/ my new repo)
+* Feb 10th, 2022 - I add, after a long time, some Go code-
 
-   => https://gist.github.com/f-klr
-   
-It works where it has been developed, so basically Linux and BSD x86 architectures.
+/fede(rico)
 
-/federico
+🏮
