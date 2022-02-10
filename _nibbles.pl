@@ -26,28 +26,28 @@ my $no_of_bytes = 0;
 my %freqs = ();
 
 sub setup {
-	my $self = shift;
-	my $s = Data::Entropy::RawSource::Local->new();
-	# in-memory data, at once, like a 'slurp' - yet, from a /random device !
-	$s->sysread($data, $self->chunk_size * $self->iterations, 0);
-	# .. and gather some stats about it. yep !
-	$self->_gather();
+  my $self = shift;
+  my $s = Data::Entropy::RawSource::Local->new();
+  # in-memory data, at once, like a 'slurp' - yet, from a /random device !
+  $s->sysread($data, $self->chunk_size * $self->iterations, 0);
+  # .. and gather some stats about it. yep !
+  $self->_gather();
 }
 
 sub _gather {
-	my $self = shift;
+  my $self = shift;
   for my $i (0 .. $self->iterations - 1) {
     my $chunk = substr($data, $i * $self->chunk_size, $self->chunk_size);
     my $d = sha384_hex($chunk);
     for my $b (unpack('(a2)*', $d)) {
       $stats{$b}++;
-      ++$no_of_bytes;				# this may be computed, so it'd be ok for a unit test !?
+      ++$no_of_bytes;       # this may be computed, so it'd be ok for a unit test !?
     }
   }
 }
 
 sub compute_freqs {
-	my $self = shift;
+  my $self = shift;
   for my $b (sort keys %stats) {
     my $n = sprintf "%.4f", 1.0 * $stats{$b} / $no_of_bytes;
     if (!exists $freqs{$n}) {
@@ -69,7 +69,8 @@ sub print {
 package main;
 #
 
-my $obj = Stats->new(chunk_size => 1024, iterations => 1024);			# the usual "defaults", indeed.
+my $obj = Stats->new(chunk_size => 1024, iterations => 1024);     # the usual "defaults", indeed.
 $obj->setup();
 $obj->compute_freqs();
 $obj->print();
+
