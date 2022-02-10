@@ -3,6 +3,14 @@
 #
 # compute some stats about "cipher/digest", eg. sha384 -
 #
+# NOTE: this is actually a rewrite of PoC code I wrote a few years ago, based on MD5, /dev/random, and so on ..
+# this code actually apply/use Moose, an OOP system for Perl5
+# and a "wrapper" to random data generators.
+#
+# NICE TO HAVE: I should actually apply some tdd/bdd - using at least Test::More,
+# as to verify its correctness,
+# time-by-time.
+#
 
 use strict;
 use warnings qw(all);
@@ -73,4 +81,3 @@ my $obj = Stats->new(chunk_size => 1024, iterations => 1024);     # the usual "d
 $obj->setup();
 $obj->compute_freqs();
 $obj->print();
-
