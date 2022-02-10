@@ -1,8 +1,8 @@
-The code, here works _only_ where it has been developed, so basically "**macOS ia-64**" architectures.
+## A bunch of code examples -
 
-* Jan, 2022 - I merged an old repo (this one, i.e. alles-fliebt, w/ my new repo)
-* Feb 10th, 2022 - I add, after a long time, some Go code-
+* no more, no less.
+* it works where it has been developer, so macOS ia-64.
+* +PoC, a and a few features.
 
-/fede(rico)
-
+that's it.
 🏮
