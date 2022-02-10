@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+#
+# this script is a demo showing how to compute bit/stats over a "/random"" source
+# also, shows how to keep track of instantiated objects,
+# and "iterate" over them, then executing a "default" method,
+# that is "doSomething"
+#
+
 from functools import reduce
 from more_itertools import flatten
 import numpy as np
@@ -21,7 +28,7 @@ class App:
         
     @classmethod
     def executeOverInstances(cls):
-        r = []
+        r = []              # here we keep track of both "obj ref", and its doSomething return value
         for obj in cls.__instances:
             r.append((obj, obj.doSomething()))
         return r
@@ -29,9 +36,9 @@ class App:
     def doSomething(self, n = 10):
         d0 = 0
         d1 = 0
-        l = lambda x: [int(n) for n in bin(x)[2:].zfill(8)]
+        bits = lambda x: [int(n) for n in bin(x)[2:].zfill(8)]
         for x in os.urandom(10):
-            for b in l(x):
+            for b in bits(x):
                 match b:
                     case 0: d0 = d0 + 1
                     case 1: d1 = d1 + 1
