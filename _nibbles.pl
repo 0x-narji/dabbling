@@ -1,94 +1,75 @@
 #!/usr/bin/perl -w
-################################################################################
+
 #
-# Compute the frequency of md5 digest bytes - double nibbles - out of a matrix
-#   of random data, in this case obtained from 'dev/random'
+# compute some stats about "cipher/digest", eg. sha384 -
 #
-# NOTE:
-#
-#   "Optimized" with builtin md5 digest, system level code remains
-#     for reference purpouses.
-#
-################################################################################
 
 use strict;
 use warnings qw(all);
 
-################################################################################
+###
 package Stats;
-################################################################################
+#
 
-use Digest::MD5 qw(md5_hex);
-use Digest::SHA qw(sha256_hex);
+use Moose;
 
-my $chunk_size = 1024;
-my $iterations = 1024;         # this '1024' will results in about [.0028, .0054] ...
-                                      # ...  frequency boundaries.
-
-my $data_length = $chunk_size * $iterations;
-my $random_data = qx!cat /dev/random | head -c $data_length!;
-
-my %bytes_stats = ();            # key is double hex byte
-my $no_of_bytes = 0;            # bytes count
-
-my %frequencies = ();
-
-sub new {
-  my $proto = shift;
-  my $class = ref($proto) || $proto;
-  return bless {}, $class;
-}
-
-sub collect_stats {
-  foreach my $iteration (0 .. $iterations - 1) {
-    #my $digest = qx!cat /dev/random | head -c $chunk_size | md5!;
-    #chomp($digest);
-    my $chunk = substr($random_data, $iteration * $chunk_size, $chunk_size);
-    my $digest = md5_hex($chunk);
-    #my $digest = sha256_hex($chunk);     # will fall between [.0030, .0050]
-    $digest =~ s/(\w\w)/$1 /g;                    # add a space between bytes
-    chomp($digest);                               # remove trailing space ' '
-    my @hex_bytes = split ' ', $digest;
-    foreach my $byte (@hex_bytes) {
-      $bytes_stats{$byte}++;
-      $no_of_bytes++;                             # bytes count update
-    }
-  }
-}
-
-sub compute_frequencies {
-  my @ordered_bytes
-    = sort { $bytes_stats{$a} cmp $bytes_stats{$b} } keys %bytes_stats;
-
-  foreach my $byte (reverse @ordered_bytes) {
-    my $frequency
-      = sprintf "%.4f", $bytes_stats{$byte} / $no_of_bytes * 1.0;
-    unless (exists $frequencies{$frequency}) {
-      @{$frequencies{$frequency}} = ();
-    }
-    push @{$frequencies{$frequency}}, $byte;  # update fres => bytes list
-  }
-}
-
-sub print_out_results {
-  my $class = shift;
-  my $output = shift; 
-
-  # Print out results, remove tab '\t' for a compact format
-  foreach my $frequency (sort keys %frequencies) {
-    $output->print("$frequency:\n", "\t", "@{$frequencies{$frequency}}\n");
-  }
-}
-
-################################################################################
-package Main;
-################################################################################
-
+use Digest::SHA qw(sha384_hex);
+use Data::Entropy::RawSource::Local;
 use IO::File;
 
-my $stats = Stats->new();
+has 'chunk_size' => (is => 'ro', isa => 'Int', default => 1024);
+has 'iterations' => (is => 'ro', isa => 'Int', default => 1024);
 
-$stats->collect_stats();
-$stats->compute_frequencies();
-$stats->print_out_results(\*STDOUT);
+my $data;
+my %stats = ();
+my $no_of_bytes = 0;
+my %freqs = ();
 
+sub setup {
+	my $self = shift;
+	my $s = Data::Entropy::RawSource::Local->new();
+	# in-memory data, at once, like a 'slurp' - yet, from a /random device !
+	$s->sysread($data, $self->chunk_size * $self->iterations, 0);
+	# .. and gather some stats about it. yep !
+	$self->_gather();
+}
+
+sub _gather {
+	my $self = shift;
+  for my $i (0 .. $self->iterations - 1) {
+    my $chunk = substr($data, $i * $self->chunk_size, $self->chunk_size);
+    my $d = sha384_hex($chunk);
+    for my $b (unpack('(a2)*', $d)) {
+      $stats{$b}++;
+      ++$no_of_bytes;				# this may be computed, so it'd be ok for a unit test !?
+    }
+  }
+}
+
+sub compute_freqs {
+	my $self = shift;
+  for my $b (sort keys %stats) {
+    my $n = sprintf "%.4f", 1.0 * $stats{$b} / $no_of_bytes;
+    if (!exists $freqs{$n}) {
+      @{$freqs{$n}} = ();
+    }
+    push @{$freqs{$n}}, $b;
+  }
+}
+
+sub print {
+  my $self = shift;
+  my $output = shift || \*STDOUT;
+  for my $n (sort keys %freqs) {
+    $output->print("$n: \n", "\t", "@{$freqs{$n}}\n");
+  }
+}
+
+####
+package main;
+#
+
+my $obj = Stats->new(chunk_size => 1024, iterations => 1024);			# the usual "defaults", indeed.
+$obj->setup();
+$obj->compute_freqs();
+$obj->print();
