@@ -26,12 +26,13 @@ has 'n' => (is => 'ro', isa => 'Int', default => 1024);
 my $stats = {};
 my $freqs = {};
 my $data;
-my $no_of_bytes = 0;			# actual bytes count, for "digest freqs"-
+my $no_of_bytes = 0;		# actual bytes count, for "digest freqs"-
 
 sub setup {
 	my $self = shift;
-	my $s = Data::Entropy::RawSource::Local->new();
-	$s->sysread($data, $self->chunk_size * $self->n, 0);
+	my $rs = Data::Entropy::RawSource::Local->new();
+	my $l = $self->chunk_size * $self->n;
+	$rs->sysread($data, $l, 0);
 	$self->_gather();
 }
 
@@ -42,7 +43,7 @@ sub _sk {
 
 sub _gather {
 	my $self = shift;
-	my $h = shift || \&sha384_hex;	# default is "sha" -
+	my $h = shift || \&sha384_hex;		# default is "sha" -
 	for my $i (0 .. $self->n - 1) {
 		my $chunk = substr($data, $i * $self->chunk_size, $self->chunk_size);
 		my $d = $h->($chunk);
@@ -51,6 +52,7 @@ sub _gather {
 		}
 		$no_of_bytes += length($d) / 2;
 	}
+	return $stats;
 }
 
 sub frequencies {
@@ -60,6 +62,7 @@ sub frequencies {
 		my $f = 1.0 * $stats->{$b} / $no_of_bytes;
 		push @{$freqs->{$s->($f)}}, $b;
 	}
+	return $freqs;
 }
 
 sub show {
