@@ -26,7 +26,7 @@ has 'iterations' => (is => 'ro', isa => 'Int', default => 1024);
 my $stats = {};
 my $freqs = {};
 my $data;
-my $no_of_bytes = 0;					# actual bytes count
+my $no_of_bytes = 0;					# actual bytes count, for "digest freqs"-
 
 sub setup {
 	my $self = shift;
