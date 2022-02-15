@@ -38,10 +38,10 @@ sub setup {
 sub _gather {
 	my $self = shift;
 	my $h = shift || \&sha384_hex;						# default is "sha" -
-	foreach my $i (0 .. $self->iterations - 1) {
+	for my $i (0 .. $self->iterations - 1) {
 		my $chunk = substr($data, $i * $self->chunk_size, $self->chunk_size);
 		my $d = $h->($chunk);
-		foreach my $b (unpack('(a2)*', $d)) {
+		for my $b (unpack('(a2)*', $d)) {
 			$stats->{$b}++;
 		}
 		$no_of_bytes += length($d) / 2;
@@ -51,7 +51,7 @@ sub _gather {
 sub frequencies {
 	my $self = shift;
 	my $s = sub { sprintf "%.4f", shift };
-	foreach my $b (sort keys %{$stats}) {
+	for my $b (sort keys %{$stats}) {
 		my $f = 1.0 * $stats->{$b} / $no_of_bytes;
 		push @{$freqs->{$s->($f)}}, $b;
 	}
@@ -60,7 +60,7 @@ sub frequencies {
 sub show {
 	my $self = shift;
 	my $output = shift || \*STDOUT;
-	foreach my $f (sort keys %{$freqs}) {
+	for my $f (sort keys %{$freqs}) {
 		my $n = $freqs->{$f};
 		$output->print("$f: \n", "\t@{$n}\n");
 	}
