@@ -26,7 +26,7 @@ has 'iterations' => (is => 'ro', isa => 'Int', default => 1024);
 my %stats = ();
 my %freqs = ();
 my $data;
-my $count = 0;					# actual bytes count
+my $no_of_bytes = 0;					# actual bytes count
 
 sub setup {
   my $self = shift;
@@ -37,20 +37,21 @@ sub setup {
 
 sub _gather {
   my $self = shift;
-	my $h = shift || \&sha384_hex;
+	my $h = shift || \&sha384_hex;						# default is "sha" -
   foreach my $i (0 .. $self->iterations - 1) {
     my $chunk = substr($data, $i * $self->chunk_size, $self->chunk_size);
-    foreach my $b (unpack('(a2)*', $h->($chunk))) {
+		my $d = $h->($chunk);
+    foreach my $b (unpack('(a2)*', $d)) {
       $stats{$b}++;
-			$count++;
     }
+		$no_of_bytes += length($d) / 2;
   }
 }
 
 sub frequencies {
   my $self = shift;
   foreach my $b (sort keys %stats) {
-    my $n = sprintf "%.4f", 1.0 * $stats{$b} / $count;
+    my $n = sprintf "%.4f", 1.0 * $stats{$b} / $no_of_bytes;
     push @{$freqs{$n}}, $b;
   }
 }
@@ -67,7 +68,7 @@ sub print {
 package main;
 #
 
-my $s = Stats->new(chunk_size => 1024, iterations => 1024);     # the usual "defaults", indeed.
-$s->setup();
-$s->frequencies();
-$s->print();
+my $obj = Stats->new(chunk_size => 1024, iterations => 1024);     # the usual "defaults", indeed.
+$obj->setup();
+$obj->frequencies();
+$obj->print();
