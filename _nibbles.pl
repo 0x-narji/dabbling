@@ -21,24 +21,29 @@ use Data::Entropy::RawSource::Local;
 use IO::File;
 
 has 'chunk_size' => (is => 'ro', isa => 'Int', default => 1024);
-has 'iterations' => (is => 'ro', isa => 'Int', default => 1024);
+has 'n' => (is => 'ro', isa => 'Int', default => 1024);
 
 my $stats = {};
 my $freqs = {};
 my $data;
-my $no_of_bytes = 0;					# actual bytes count, for "digest freqs"-
+my $no_of_bytes = 0;			# actual bytes count, for "digest freqs"-
 
 sub setup {
 	my $self = shift;
 	my $s = Data::Entropy::RawSource::Local->new();
-	$s->sysread($data, $self->chunk_size * $self->iterations, 0);
+	$s->sysread($data, $self->chunk_size * $self->n, 0);
 	$self->_gather();
+}
+
+sub _sk {
+	my $h = ref($_[0]) ? shift : { @_ };		# ref, or items -
+	return sort keys %$h;
 }
 
 sub _gather {
 	my $self = shift;
-	my $h = shift || \&sha384_hex;						# default is "sha" -
-	for my $i (0 .. $self->iterations - 1) {
+	my $h = shift || \&sha384_hex;	# default is "sha" -
+	for my $i (0 .. $self->n - 1) {
 		my $chunk = substr($data, $i * $self->chunk_size, $self->chunk_size);
 		my $d = $h->($chunk);
 		for my $b (unpack('(a2)*', $d)) {
@@ -51,7 +56,7 @@ sub _gather {
 sub frequencies {
 	my $self = shift;
 	my $s = sub { sprintf "%.4f", shift };
-	for my $b (sort keys %{$stats}) {
+	for my $b (_sk $stats) {
 		my $f = 1.0 * $stats->{$b} / $no_of_bytes;
 		push @{$freqs->{$s->($f)}}, $b;
 	}
@@ -60,7 +65,7 @@ sub frequencies {
 sub show {
 	my $self = shift;
 	my $output = shift || \*STDOUT;
-	for my $f (sort keys %{$freqs}) {
+	for my $f (_sk $freqs) {
 		my $n = $freqs->{$f};
 		$output->print("$f: \n", "\t@{$n}\n");
 	}
@@ -70,7 +75,7 @@ sub show {
 package main;
 #
 
-my $s = Stats->new(chunk_size => 1024, iterations => 1024);			# the usual "defaults", indeed.
+my $s = Stats->new(chunk_size => 1024, n => 1024);			# the usual "defaults", indeed.
 $s->setup();
 $s->frequencies();
 $s->show();
