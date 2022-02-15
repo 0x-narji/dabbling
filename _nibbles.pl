@@ -56,7 +56,7 @@ sub frequencies {
 	}
 }
 
-sub print {
+sub display {
 	my $self = shift;
 	my $output = shift || \*STDOUT;
 	foreach my $n (sort keys %freqs) {
@@ -68,7 +68,7 @@ sub print {
 package main;
 #
 
-my $obj = Stats->new(chunk_size => 1024, iterations => 1024);			# the usual "defaults", indeed.
-$obj->setup();
-$obj->frequencies();
-$obj->print();
+my $s = Stats->new(chunk_size => 1024, iterations => 1024);			# the usual "defaults", indeed.
+$s->setup();
+$s->frequencies();
+$s->display();
