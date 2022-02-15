@@ -23,8 +23,8 @@ use IO::File;
 has 'chunk_size' => (is => 'ro', isa => 'Int', default => 1024);
 has 'iterations' => (is => 'ro', isa => 'Int', default => 1024);
 
-my %stats = ();
-my %freqs = ();
+my $stats = {};
+my $freqs = {};
 my $data;
 my $no_of_bytes = 0;					# actual bytes count
 
@@ -42,7 +42,7 @@ sub _gather {
 		my $chunk = substr($data, $i * $self->chunk_size, $self->chunk_size);
 		my $d = $h->($chunk);
 		foreach my $b (unpack('(a2)*', $d)) {
-			$stats{$b}++;
+			$stats->{$b}++;
 		}
 		$no_of_bytes += length($d) / 2;
 	}
@@ -50,17 +50,19 @@ sub _gather {
 
 sub frequencies {
 	my $self = shift;
-	foreach my $b (sort keys %stats) {
-		my $n = sprintf "%.4f", 1.0 * $stats{$b} / $no_of_bytes;
-		push @{$freqs{$n}}, $b;
+	my $s = sub { sprintf "%.4f", shift };
+	foreach my $b (sort keys %{$stats}) {
+		my $f = 1.0 * $stats->{$b} / $no_of_bytes;
+		push @{$freqs->{$s->($f)}}, $b;
 	}
 }
 
-sub display {
+sub show {
 	my $self = shift;
 	my $output = shift || \*STDOUT;
-	foreach my $n (sort keys %freqs) {
-		$output->print("$n: \n", "\t@{$freqs{$n}}\n");
+	foreach my $f (sort keys %{$freqs}) {
+		my $n = $freqs->{$f};
+		$output->print("$f: \n", "\t@{$n}\n");
 	}
 }
 
@@ -71,4 +73,4 @@ package main;
 my $s = Stats->new(chunk_size => 1024, iterations => 1024);			# the usual "defaults", indeed.
 $s->setup();
 $s->frequencies();
-$s->display();
+$s->show();
