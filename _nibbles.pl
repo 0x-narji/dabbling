@@ -78,7 +78,8 @@ sub show {
 package main;
 #
 
-my $s = Stats->new(chunk_size => 1024, n => 1024);			# the usual "defaults", indeed.
-$s->setup();
-$s->frequencies();
-$s->show();
+my $o = Stats->new(chunk_size => 1024, n => 1024);			# the usual "defaults", indeed.
+$o->setup();
+$o->frequencies();
+$o->show();
+
